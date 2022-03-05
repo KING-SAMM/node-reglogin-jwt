@@ -1,0 +1,16 @@
+{
+  "name": "node-reglogin-jwt",
+  "version": "1.0.0",
+  "description": "\"Node-express registration and login systen with JWT authentication\"",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "KC Samm",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.2",
+    "express": "^4.17.3"
+  }
+}

@@ -6,17 +6,17 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import { User } from './model/user.js';
 import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
 
+dotenv.config();
 
-mongoose.connect('mongodb+srv://KCSamm:@score.snwx3.mongodb.net/users?retryWrites=true&w=majority', {
+mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-
-const port = 3000;
 
 const app = express();
 
@@ -48,6 +48,6 @@ app.post('/api/register', async (req, res) => {
    
 });
 
-app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+app.listen(process.env.PORT, () => {
+    console.log(`Server running on port ${process.env.PORT}`);
 });

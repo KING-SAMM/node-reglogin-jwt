@@ -5,9 +5,24 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <style>
+        .error 
+        {
+            font-size: 1.2em;
+            color: red;
+        }
+
+        .success 
+        {
+            font-size: 1.2em;
+            color: teal;
+        }
+    </style>
 </head>
 <body>
     <h1>Register</h1>
+    <div class="error"></div>
+    <div class="success"></div>
     <form id="reg-form" action="">
         <input type="text" id="fullname" placeholder="Full Name"><br>
         <input type="text" id="username" placeholder="Username"><br>
@@ -38,7 +53,21 @@
                 })
             }).then((res) => res.json());
 
-            console.log(result);
+            if(result.status === 'ok' && result.message !== '' && result.error === '')
+            {
+                // Display success message
+                document.querySelector('.success').innerHTML = result.message;
+              
+                // Clear any previous error message
+                document.querySelector('.error').innerHTML = '';
+            }
+            else
+            {
+                // Clear any previous success message
+                document.querySelector('.success').innerHTML = '';
+                // Display error message
+                document.querySelector('.error').innerHTML = result.error;
+            }
         }
     </script>
 </body>

@@ -1,6 +1,5 @@
 import express from 'express';
-import path from 'path';
-import { dirname } from 'path';
+import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
@@ -27,24 +26,45 @@ app.post('/api/register', async (req, res) => {
     console.log(req.body);
 
     // Destructure request body object
-    const { fullname, username, password: plainTextPassword } = req.body;
+    const { fullname, username, password } = req.body;
 
-    // Hash the password
-    const password = await bcrypt.hash(plainTextPassword, 10);
-    
-    // Handle request (Register/create user)
-    try {
-        const response = await User.create({
-            fullname,
-            username,
-            password
-        });
-        console.log(`User created successfully`, response);
-    } catch (error) {
-        console.log(error);
-        return res.json({ status: "Error" });
+    // Validate request information
+    if (username === '' || typeof(username) !== 'string')
+    {
+        return res.json({ status: 'error', error: 'Invalid username', message: '' });
     }
-    res.send('Hello KC Samm');
+    else if ( password === '' || typeof(password) !== 'string')
+    {
+        return res.json({ status: 'error', error: 'Invalid password', message: '' });
+    }
+    else
+    {
+         // Hash the password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Handle request (Register/create user) and send response
+        try {
+            const response = await User.create({
+                fullname,
+                username,
+                password: hashedPassword
+            });
+            console.log(`User created successfully`, response);
+            // res.send(`Hello ${response.fullname}`);
+            return res.json({ status: 'ok', error: '', message: 'User created successfully' });
+        } catch (error) {
+            if(error.code === 11000)
+            {
+                // res.send('Username already exists');
+                return res.json({ status: 'error', error: 'Username already exists', message: '' });
+            }
+            else 
+            {
+                // res.send('Oops! Something went wrong');
+                return res.json({ status: 'error', error: 'Oops! Something went wrong', message: '' });
+            }
+        }
+    }  
    
 });
 

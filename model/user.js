@@ -7,7 +7,7 @@ const UserSchema = new mongoose.Schema(
         password: { type: String, required: true, select: false }
     },
     { timestamps: true },
-    { collection: 'register' }
+    { collection: 'users' }
 );
 
 export const User = mongoose.model('User', UserSchema);

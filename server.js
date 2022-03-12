@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import { User } from './model/user.js';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import jwt from 'jsonwebtoken';
 
 dotenv.config();
 
@@ -66,6 +67,31 @@ app.post('/api/register', async (req, res) => {
         }
     }  
    
+});
+
+app.post('/api/login', async (req, res) => {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username }).lean();
+
+    if(!user)
+    {
+        return res.json({ status: 'error', error: 'Invalid username or password', data: '' })
+    }
+
+    if (await bcrypt.compare(password, user.password))
+    {
+        const token = jwt.sign(
+            { 
+                id: user._id, 
+                username: user.username
+            },
+            process.env.JWT_SECRET
+        );
+
+        return res.json({ status: 'ok', message: 'Login Successful', data: token });
+    }
+
+    res.json({ status: 'error', error: 'Invalid username or password', data: '' });
 });
 
 app.listen(process.env.PORT, () => {

@@ -23,6 +23,7 @@ const app = express();
 app.use(bodyParser.json());
 app.use('/', express.static(path.join(__dirname, 'static')));
 
+// Register New User
 app.post('/api/register', async (req, res) => {
     console.log(req.body);
 
@@ -37,6 +38,10 @@ app.post('/api/register', async (req, res) => {
     else if ( password === '' || typeof(password) !== 'string')
     {
         return res.json({ status: 'error', error: 'Invalid password', message: '' });
+    }
+    else if ( password.length < 3 )
+    {
+        return res.json({ status: 'error', error: 'Password too short. Should be at least 3 characters', message: '' });
     }
     else
     {
@@ -69,6 +74,7 @@ app.post('/api/register', async (req, res) => {
    
 });
 
+// Login Existing User
 app.post('/api/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await User.findOne({ username }).lean();
@@ -93,6 +99,46 @@ app.post('/api/login', async (req, res) => {
 
     res.json({ status: 'error', error: 'Invalid username or password', data: '' });
 });
+
+// Reset Password
+app.post('/api/reset-password', async (req, res) => {
+    // First get the token attached to the request
+    const { token, newpassword } = req.body;
+
+    if ( newpassword === '' || typeof(newpassword) !== 'string')
+    {
+        return res.json({ status: 'error', error: 'Invalid password', message: '' });
+    }
+
+    if ( newpassword.length < 3 )
+    {
+        return res.json({ status: 'error', error: 'Password too short. Should be at least 3 characters', message: '' });
+    }
+
+    try
+    {
+        // And verify it has not been tampered with
+        const verifiedUser = jwt.verify(token, process.env.JWT_SECRET);
+
+        //Then update the relevant fields of the user's data
+        const _id = verifiedUser.id;
+        const hashedNewPassword = await bcrypt.hash(newpassword, 10);
+        await User.updateOne(
+            { _id },
+            {
+                $set: { password: hashedNewPassword }
+            }
+        )
+
+        console.log('JWT decoded:', verifiedUser);
+        return res.json({ status: 'ok', message: 'Password changed successfully' })
+    }
+    catch(error)
+    {
+        res.json({ status: 'error', error: 'Authentication failure ;))' })
+    }
+    
+})
 
 app.listen(process.env.PORT, () => {
     console.log(`Server running on port ${process.env.PORT}`);
